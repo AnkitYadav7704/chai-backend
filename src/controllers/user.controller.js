@@ -40,12 +40,15 @@ const registerUser =asyncHandler( async (req,res)=>{
         throw new ApiError(400,"All fields are required")
     }
     
-    const existedUser =await User.findOne({
-        $or:[{username},{email}]
-    })
+    const existedUser = await User.findOne({
+        $or: [
+            { username: username.toLowerCase() },
+            { email: email.toLowerCase() }
+        ]
+    });
 
-    if(existedUser){
-        throw new ApiError(409,"User with email or username already exists")
+    if (existedUser) {
+        throw new ApiError(409, "User with email or username already exists");
     }
     
     console.log(req.files);
@@ -122,7 +125,7 @@ const loginUser = asyncHandler(async (req,res) => {
 
     const {accessToken , refreshToken}=await generateAccessAndRefereshTokens(user._id)
 
-    const loggedInUser = User.findById(user._id).select("-password -refreshToken")
+    const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
 
 
     const options = {
